@@ -6,7 +6,7 @@ import Logging
 public typealias Logger = Logging.Logger
 
 public extension Logger {
-    init(_ cls: AnyClass) {
+    init(rx cls: AnyClass) {
         let name = Bundle(for: cls).bundleIdentifier ?? "unkown"
         self.init(label: name.lowercased())
     }

@@ -2,6 +2,9 @@
 import UIKit
 
 open class RXUIView: UIView {
+    deinit {
+        logger.trace("释放\(self)")
+    }
     public override init(frame: CGRect) {
         super.init(frame: frame)
         commom()
