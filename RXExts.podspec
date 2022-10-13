@@ -12,6 +12,7 @@ Pod::Spec.new do |s|
 DESC
 
   s.homepage = "https://github.com/yaochenfeng/#{s.name}"
+  s.source           = { :git => "https://github.com/yaochenfeng/#{s.name}.git", :tag => s.version.to_s }
   s.license = {
     :type => "MIT",
     :text => <<-LICENSE,
