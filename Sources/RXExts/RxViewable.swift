@@ -23,7 +23,7 @@ extension Reactive: RxViewable where Base: UIView {
 
 public extension Reactive where Base: UIStackView {
     @discardableResult static func new(
-        axis: NSLayoutConstraint.Axis,
+        axis: NSLayoutConstraint.Axis = .horizontal,
         spacing: CGFloat = 0,
         @ArrayBuilder<RxViewable> builder: () -> [RxViewable]
     ) -> Self {
