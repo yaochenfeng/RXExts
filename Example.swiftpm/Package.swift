@@ -16,6 +16,7 @@ let package = Package(
         .iOSApplication(
             name: "Example",
             targets: ["AppModule"],
+            bundleIdentifier: "com.github.yaochenfeng.browser",
             displayVersion: "1.0.0",
             bundleVersion: "1",
             appIcon: .placeholder(icon: .earth),
@@ -33,7 +34,7 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(path: "../../")
+        .package(path: "/Users/yaochenfeng/works/fengxiang/RXExts")
     ],
     targets: [
         .executableTarget(
@@ -41,7 +42,7 @@ let package = Package(
             dependencies: [
                 .product(name: "RXExts", package: "RXExts")
             ],
-            path: "."
+            path: "./"
         )
     ]
 )
