@@ -39,7 +39,7 @@ public extension Reactive where Base: UIView {
         return self
     }
     /// 获取对应值
-    @discardableResult func ref(ref: inout Base?) -> Self {
+    @discardableResult func ref(_ ref: inout Base?) -> Self {
         ref = base
         return self
     }
