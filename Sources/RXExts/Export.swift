@@ -5,6 +5,9 @@ import Logging
 
 public typealias Logger = Logging.Logger
 
+public typealias RXViewEvent = () -> Void
+
+
 public extension Logger {
     init(rx cls: AnyClass) {
         let name = Bundle(for: cls).bundleIdentifier ?? "unkown"

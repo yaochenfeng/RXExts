@@ -31,6 +31,18 @@ public extension Reactive where Base: UIView {
         }
         return nil
     }
+    /// 设置圆角弧度
+    @discardableResult
+    func cornerRadius(_ radius: CGFloat) -> Self {
+        base.layer.cornerRadius = radius
+        base.layer.masksToBounds = true
+        return self
+    }
+    /// 获取对应值
+    @discardableResult func ref(ref: inout Base?) -> Self {
+        ref = base
+        return self
+    }
 }
 public extension Reactive where Base: UICollectionView {
     static var new: Reactive<Base> {
