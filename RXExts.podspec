@@ -26,4 +26,5 @@ LICENSE
   s.dependency "Logging", "~> 1.0"
   s.dependency "RxCocoa", "~> 6.0"
   s.dependency "SnapKit", "~> 5.0"
+  s.weak_framework = 'swiftUI'
 end
