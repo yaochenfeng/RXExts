@@ -1,11 +1,14 @@
 //
-//  SwiftUIView.swift
+//  Reactive+View.swift
 //  RXExts
 //
-//  Created by yaochenfeng on 2022/10/26.
+//  Created by yaochenfeng on 2022/10/27.
 //
+
+
 #if canImport(SwiftUI)
 import SwiftUI
+import UIKit
 
 @available(iOS 13.0, *)
 extension Reactive: View where Base: UIView {}
