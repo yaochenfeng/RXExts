@@ -39,15 +39,27 @@ extension Reactive where Base: WKWebView {
     }
     
     
-    static var new: Reactive<Base> {
-        let config = WKWebViewConfiguration.rx.new.then { config in
-            config.processPool = RXWebView.processPool
-        }
-        return Base(frame: .zero, configuration: config).rx
+    @discardableResult func load(_ tmp: URL?) -> WKNavigation? {
+        guard let url = tmp else { return nil }
+        return base.load(URLRequest(url: url))
     }
     
-    
-    @discardableResult func load(_ url: URL) -> WKNavigation? {
-        return base.load(URLRequest(url: url))
+}
+public extension Reactive where Base: RXWebView {
+    static func new(_ config: RXWebConfig) -> Reactive<Base> {
+        let webConfig = WKWebViewConfiguration.rx.new.then { config in
+            config.processPool = config.processPool
+            config.allowsInlineMediaPlayback = true
+            if #available(iOS 11.0, *) {
+                config.setURLSchemeHandler(RXWebConfig.H5SchemeHandler(), forURLScheme: "h5")
+                config.setURLSchemeHandler(RXWebConfig.H5SchemeHandler(), forURLScheme: "h5s")
+            }
+        }
+        return Base(
+            frame: .zero,
+            configuration: webConfig
+        ).rx.chain { base in
+            base.config = config
+        }
     }
 }
