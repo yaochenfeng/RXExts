@@ -6,15 +6,51 @@
 //
 
 import UIKit
-
 /// 网络资源静态化
-class RXURLProtocol: URLProtocol {
-    override class func canInit(with request: URLRequest) -> Bool {
-        guard URLProtocol.property(forKey: tagKey, in: request) == nil else {
+public class RXURLProtocol: URLProtocol {
+    public override class func canInit(with request: URLRequest) -> Bool {
+        guard let scheme = request.url?.scheme,
+              ["http","https"].contains(scheme),
+              URLProtocol.property(forKey: tagKey, in: request) == nil,
+              request.httpMethod?.lowercased() == "get" else {
             return false
         }
         return true
     }
+    public override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+        return request
+    }
+    public override func startLoading() {
+        //已有缓存
+        if let cachedRes = URLCache.shared.cachedResponse(for: self.request) {
+            client?.urlProtocol(self, didReceive: cachedRes.response, cacheStoragePolicy: .notAllowed)
+            client?.urlProtocol(self, didLoad: cachedRes.data)
+            client?.urlProtocolDidFinishLoading(self)
+            return
+        }
+        logger.trace("网络拦截\(request.url?.absoluteString ?? "")")
+        let newRequest = (request as NSURLRequest).mutableCopy() as! NSMutableURLRequest
+        URLProtocol.setProperty(true, forKey: Self.tagKey, in: newRequest)
+        dataTask = URLSession.shared.dataTask(with: newRequest as URLRequest) { data, res, err in
+            if let error = err {
+                self.client?.urlProtocol(self, didFailWithError: error)
+            } else if let data = data, let response = res {
+                self.client?.urlProtocol(self, didLoad: data)
+                self.client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+                self.client?.urlProtocolDidFinishLoading(self)
+                URLCache.shared.storeCachedResponse(CachedURLResponse(response: response, data: data, storagePolicy: .allowed), for: self.request)
+            }
+            
+        }
+        dataTask?.resume()
+        
+    }
+    public override func stopLoading() {
+        dataTask?.cancel()
+    }
     
+    //URLSession数据请求任务
+    var dataTask: URLSessionDataTask?
     static let tagKey = "RXURLProtocolKey"
 }
+
