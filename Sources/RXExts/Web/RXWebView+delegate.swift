@@ -8,7 +8,7 @@
 import WebKit
 
 /// 默认WKUIDelegate实现
-extension WKWebView: WKUIDelegate {
+extension RXWebView: WKUIDelegate {
     open func webView(_ webView: WKWebView, runJavaScriptAlertPanelWithMessage message: String, initiatedByFrame frame: WKFrameInfo, completionHandler: @escaping () -> Void) {
         let alert = UIAlertController.init(title: nil, message: message, preferredStyle: .alert)
         
@@ -38,5 +38,18 @@ extension WKWebView: WKUIDelegate {
             webView.load(navigationAction.request)
         }
         return nil
+    }
+}
+
+extension RXWebView: WKNavigationDelegate {
+    open func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        
+        
+        let allow = decidePolicyForAction(navigationAction)
+        let action: WKNavigationActionPolicy = allow ? allowActionPolicy : .cancel
+        decisionHandler(action)
+    }
+    public func webView(_ webView: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse, decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
+        decisionHandler(decidePolicyForResponse(navigationResponse) ? .allow : .cancel)
     }
 }

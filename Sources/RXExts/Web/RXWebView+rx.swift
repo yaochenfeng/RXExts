@@ -39,25 +39,41 @@ extension Reactive where Base: WKWebView {
     }
     
     
-    @discardableResult func load(_ tmp: URL?) -> WKNavigation? {
-        guard let url = tmp else { return nil }
-        return base.load(URLRequest(url: url))
+    @discardableResult func load(_ tmp: URL?) -> Self? {
+        guard let url = tmp else { return self }
+        base.load(URLRequest(url: url))
+        return self
     }
     
 }
 public extension Reactive where Base: RXWebView {
-    static func new(_ config: RXWebConfig) -> Reactive<Base> {
-        let webConfig = WKWebViewConfiguration.rx.new.then { config in
-            config.processPool = config.processPool
-            config.allowsInlineMediaPlayback = true
-            if #available(iOS 11.0, *) {
-                config.setURLSchemeHandler(RXWebConfig.H5SchemeHandler(), forURLScheme: "h5")
-                config.setURLSchemeHandler(RXWebConfig.H5SchemeHandler(), forURLScheme: "h5s")
-            }
-        }
+    typealias WebConfig = (WKWebViewConfiguration) -> Void
+    static func new(_ config: RXWebConfig, custom: WebConfig? = nil) -> Reactive<Base> {
+        return new(config: config, custom: custom)
+    }
+    
+    func setDelegate(_ delegate: WKNavigationDelegate)
+        -> Self {
+            navigationDelegate.setForwardToDelegate(delegate, retainDelegate: false)
+        return self
+    }
+}
+
+internal extension Reactive where Base: RXWebView {
+    static func new(config: RXWebConfig, custom: WebConfig? = nil) -> Reactive<Base> {
         return Base(
             frame: .zero,
-            configuration: webConfig
+            configuration: WKWebViewConfiguration.rx.new.then { config in
+                config.processPool = config.processPool
+                config.allowsInlineMediaPlayback = true
+                if #available(iOS 11.0, *) {
+                    config.setURLSchemeHandler(RXWebConfig.H5SchemeHandler(), forURLScheme: "h5")
+                    config.setURLSchemeHandler(RXWebConfig.H5SchemeHandler(), forURLScheme: "h5s")
+                }
+                if let configWeb = custom {
+                    configWeb(config)
+                }
+            }
         ).rx.chain { base in
             base.config = config
         }

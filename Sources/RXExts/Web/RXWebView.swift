@@ -23,6 +23,22 @@ open class RXWebView: WKWebView {
     }
     var config: RXWebConfig = .init()
     var progressView = UIProgressView.rx.new.isHidden(true)
+    public var decidePolicyForAction: (WKNavigationAction) -> Bool = { _ in
+        return true
+    }
+    public var decidePolicyForResponse: (WKNavigationResponse) -> Bool = { _ in
+        return true
+    }
+    /// 是否允许通用链接打开app
+    public var allowAppLink: Bool {
+        get {
+            return allowActionPolicy == .allow
+        }
+        set {
+            allowActionPolicy = newValue ? .allow : .init(rawValue: WKNavigationActionPolicy.allow.rawValue + 2) ?? .allow
+        }
+    }
+    internal var allowActionPolicy: WKNavigationActionPolicy = .allow
 }
 
 
@@ -38,7 +54,7 @@ private extension RXWebView {
                 mk.height.equalTo(3)
             }.progress(progress)
             .isHidden(progress.map{$0 == 1}.distinctUntilChanged())
+        rx.setDelegate(self)
     }
 }
-
 

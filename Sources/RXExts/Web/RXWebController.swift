@@ -8,6 +8,18 @@
 import UIKit
 import WebKit
 
+open class RXWebController: UIViewController {
+    public var webView = RXWebView.rx.new(.shared)
+        .allowsLinkPreview(true)
+        .allowsBackForwardNavigationGestures(true)
+        .base
+    
+    var initialURL: URL?
+    open override func viewDidLoad() {
+        super.viewDidLoad()
+        setupUI()
+    }
+}
 public extension RXWebController {
     convenience init(url: URL?) {
         self.init()
@@ -25,40 +37,19 @@ public extension RXWebController {
     /// 是否允许通用链接打开app
     public var allowAppLink: Bool {
         get {
-            return allowActionPolicy == .allow
+            return webView.allowAppLink
         }
         set {
-            allowActionPolicy = newValue ? .allow : .init(rawValue: WKNavigationActionPolicy.allow.rawValue + 2) ?? .allow
+            webView.allowAppLink = newValue
         }
     }
-}
-
-open class RXWebController: UIViewController {
-    public var webView = RXWebView.rx.new(.shared)
-        .allowsLinkPreview(true)
-        .allowsBackForwardNavigationGestures(true)
-        .base
-    
-    var initialURL: URL?
-    open override func viewDidLoad() {
-        super.viewDidLoad()
-        setupUI()
-    }
-    
-    private var allowActionPolicy: WKNavigationActionPolicy = .allow
 }
 
 private extension RXWebController {
     func setupUI() {
-        webView.rx.navigationDelegate(self)
+        webView.rx
             .add2(view).lyt { mk in
                 mk.edges.equalToSuperview()
             }.load(initialURL)
-    }
-}
-
-extension RXWebController: WKNavigationDelegate {
-    open func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-        decisionHandler(allowActionPolicy)
     }
 }

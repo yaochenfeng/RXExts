@@ -60,3 +60,12 @@ public class RXURLProtocol: URLProtocol {
     static let tagKey = "RXURLProtocolKey"
 }
 
+public extension RXURLProtocol {
+    static func enable(_ bl: Bool) {
+        if bl {
+            URLProtocol.registerClass(RXURLProtocol.self)
+        } else {
+            URLProtocol.unregisterClass(RXURLProtocol.self)
+        }
+    }
+}
