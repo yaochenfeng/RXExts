@@ -25,6 +25,19 @@ public struct RXWebConfig {
 }
 
 extension RXWebConfig {
+    /// 网址需要缓存
+    func canCache(_ req: URLRequest) -> Bool {
+        guard #available(iOS 11.0, *),
+              let scheme = req.url?.scheme,
+              let host = req.url?.host,
+              ["https","http"].contains(scheme) else {
+            return false
+        }
+        return hostWhite.contains { white in
+            return host.contains(white)
+        }
+    }
+    
     @available(iOS 11.0, *)
     public class H5SchemeHandler: NSObject, WKURLSchemeHandler {
         public func webView(_ webView: WKWebView, start urlSchemeTask: WKURLSchemeTask) {
@@ -49,7 +62,7 @@ extension RXWebConfig {
 
 extension RXWebView {
     open override func load(_ request: URLRequest) -> WKNavigation? {
-        if #available(iOS 11.0, *), config.enableCached {
+        if config.canCache(request) {//可以缓存加速
             return super.load(request.replace(scheme: "http", newValue: RXWebConfig.scheme))
         }
 

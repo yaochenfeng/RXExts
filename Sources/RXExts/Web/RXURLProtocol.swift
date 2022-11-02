@@ -8,11 +8,16 @@
 import UIKit
 /// 网络资源静态化
 public class RXURLProtocol: URLProtocol {
+    /// 允许缓存
+    public static var allowCache: (URLRequest) -> Bool = { _ in
+        return true
+    }
     public override class func canInit(with request: URLRequest) -> Bool {
         guard let scheme = request.url?.scheme,
               ["http","https"].contains(scheme),
               URLProtocol.property(forKey: tagKey, in: request) == nil,
-              request.httpMethod?.lowercased() == "get" else {
+              request.httpMethod?.lowercased() == "get",
+              allowCache(request) else {
             return false
         }
         return true
@@ -39,11 +44,12 @@ public class RXURLProtocol: URLProtocol {
                 self.client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
                 self.client?.urlProtocolDidFinishLoading(self)
                 URLCache.shared.storeCachedResponse(CachedURLResponse(response: response, data: data, storagePolicy: .allowed), for: self.request)
+            } else {
+                logger.warning("网络返回\(res)")
             }
             
         }
         dataTask?.resume()
-        
     }
     public override func stopLoading() {
         dataTask?.cancel()
