@@ -16,17 +16,19 @@ public extension Reactive where Base: UIViewController {
     }
     /// 附加安全边距
     var additionalSafeAreaInsets: UIEdgeInsets {
-        set {
+        nonmutating set {
             if #available(iOS 11.0, *) {
                 base.additionalSafeAreaInsets = newValue
             } else {
-                objc_setAssociatedObject(base, &AssociatedKeys.safeAreaInsets, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-                base.view.rx.safeAreaLayoutGuide.snp.remakeConstraints { make in
-                    make.top.equalTo(base.topLayoutGuide.snp.bottom).offset(newValue.top)
-                    make.left.equalTo(base.view).offset(newValue.left)
-                    make.right.equalTo(base.view).offset(-newValue.right)
-                    make.bottom.equalTo(base.bottomLayoutGuide.snp.top).offset(-newValue.bottom)
+                if additionalSafeAreaInsets != newValue {
+                    base.view.rx.safeAreaLayoutGuide.snp.remakeConstraints { make in
+                        make.top.equalTo(base.topLayoutGuide.snp.bottom).offset(newValue.top)
+                        make.left.equalTo(base.view).offset(newValue.left)
+                        make.right.equalTo(base.view).offset(-newValue.right)
+                        make.bottom.equalTo(base.bottomLayoutGuide.snp.top).offset(-newValue.bottom)
+                    }
                 }
+                objc_setAssociatedObject(base, &AssociatedKeys.safeAreaInsets, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
             }
         }
         get {
